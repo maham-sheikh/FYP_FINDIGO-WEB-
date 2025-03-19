@@ -60,9 +60,38 @@ const createTables = async () => {
     } else {
       console.log('Services table already exists.');
     }
+
+    const [vendorsTable] = await db.query(`
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'findigo2' AND table_name = 'vendors'
+    `);
+
+    if (vendorsTable.length === 0) {
+      await db.query(`
+        CREATE TABLE vendors (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          fullName VARCHAR(255) NOT NULL,
+          cnic VARCHAR(20) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          phone VARCHAR(20) NOT NULL,
+          gender ENUM('Male', 'Female', 'Other') NOT NULL,
+          address VARCHAR(255) NOT NULL,
+          postalCode VARCHAR(20),
+          city VARCHAR(255) NOT NULL,
+          password VARCHAR(255) NOT NULL,
+          businessCategory VARCHAR(255) NOT NULL,
+          subService VARCHAR(255) NOT NULL,
+          status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending'
+        )
+      `);
+      console.log('Vendors table created successfully.');
+    } else {
+      console.log('Vendors table already exists.');
+    }
   } catch (error) {
     console.error('Error creating tables:', error);
-    process.exit(1); 
+    process.exit(1);
   }
 };
 
