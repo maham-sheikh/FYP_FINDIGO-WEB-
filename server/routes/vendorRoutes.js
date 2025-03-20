@@ -14,28 +14,28 @@ router.get("/test-db", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ status: "error", message: "Email and password are required." });
+  if (!phone || !password) {
+    return res.status(400).json({ status: "error", message: "Phone and password are required." });
   }
 
   try {
-    console.log("Querying database for vendor:", email);
-    const query = "SELECT * FROM vendors WHERE LOWER(email) = LOWER(?)";
 
-    const [results] = await db.query(query, [email]);
+    const query = "SELECT * FROM vendors WHERE phone = ?";
+
+    const [results] = await db.query(query, [phone]);
 
     console.log("Database query results:", results);
 
     if (results.length === 0) {
-      return res.status(401).json({ status: "error", message: "Invalid email or password" });
+      return res.status(401).json({ status: "error", message: "Invalid phone or password" });
     }
 
     const vendor = results[0];
 
     if (vendor.password !== password) {
-      return res.status(401).json({ status: "error", message: "Invalid email or password" });
+      return res.status(401).json({ status: "error", message: "Invalid phone or password" });
     }
 
     if (vendor.status !== "approved") {
@@ -45,7 +45,7 @@ router.post("/login", async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Login successful",
-      vendor: { id: vendor.id, email: vendor.email, name: vendor.name },
+      vendor: { id: vendor.id, phone: vendor.phone, name: vendor.name },
     });
 
   } catch (error) {

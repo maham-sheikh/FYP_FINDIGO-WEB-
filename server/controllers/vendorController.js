@@ -1,22 +1,21 @@
 const db = require("../config/db"); 
 
 const vendorLogin = async (req, res) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ status: "error", message: "Email and password are required." });
+  if (!phone || !password) {
+    return res.status(400).json({ status: "error", message: "Phone and password are required." });
   }
 
   try {
-    console.log("Querying database for vendor:", email);
-    const query = "SELECT * FROM vendors WHERE LOWER(email) = LOWER(?)";
+    const query = "SELECT * FROM vendors WHERE phone = ?";
 
     const timeout = setTimeout(() => {
       console.error("Database query timed out");
       return res.status(500).json({ status: "error", message: "Database query timed out." });
-    }, 5000); // 5-second timeout
+    }, 5000); 
 
-    db.query(query, [email], (err, results) => {
+    db.query(query, [phone], (err, results) => {
       clearTimeout(timeout); 
 
       if (err) {
@@ -25,13 +24,13 @@ const vendorLogin = async (req, res) => {
       }
 
       if (results.length === 0) {
-        return res.status(401).json({ status: "error", message: "Invalid email or password" });
+        return res.status(401).json({ status: "error", message: "Invalid phone or password" });
       }
 
       const vendor = results[0];
 
       if (vendor.password !== password) {
-        return res.status(401).json({ status: "error", message: "Invalid email or password" });
+        return res.status(401).json({ status: "error", message: "Invalid phone or password" });
       }
 
       if (vendor.status !== "approved") {
@@ -41,7 +40,7 @@ const vendorLogin = async (req, res) => {
       return res.status(200).json({
         status: "success",
         message: "Login successful",
-        vendor: { id: vendor.id, email: vendor.email, name: vendor.name },
+        vendor: { id: vendor.id, phone: vendor.phone, name: vendor.name },
       });
     });
   } catch (error) {
